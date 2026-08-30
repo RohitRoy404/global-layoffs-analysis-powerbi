@@ -117,15 +117,6 @@ SELECT * FROM layoffs_copy2 WHERE industry IS NULL OR industry="";
 SELECT * FROM layoffs_copy2 WHERE company ="Carvana";
 
 UPDATE layoffs_copy2 SET industry=NULL WHERE industry ="";
-SELECT * FROM layoffs_copy2 t1
-         JOIN layoffs_copy2 t2 ON t1.company=t2.company OR t1.location = t2.location
-         WHERE (t1.industry IS NULL)
-         AND t2.industry IS NOT NULL;
-
-UPDATE layoffs_copy2 t1
-         JOIN layoffs_copy2 t2 ON t1.company=t2.company OR t1.location = t2.location
-         SET t1.industry=t2.industry
-		 WHERE t1.industry IS NULL;
 
 
 -- Removing unnessary coloums 
@@ -166,10 +157,7 @@ SELECT YEAR(DATE) AS YEAR,SUM(total_laid_off) AS total_layoffs FROM layoffs_copy
 SELECT YEAR(DATE) AS YEAR,SUM(total_laid_off) AS total_layoffs FROM layoffs_copy2  WHERE DATE IS NOT NULL GROUP BY YEAR(DATE) ORDER BY 2 DESC;
 -- Show total layoffs per month
 SELECT DATE_FORMAT(DATE,'%Y-%m') AS MONTH,SUM(total_laid_off) AS total_layoffs FROM layoffs_copy2  WHERE DATE IS NOT NULL GROUP BY 1 ORDER BY 1 ASC;
--- How layoffs accumulated over time
-WITH cumulative_amount AS(
-SELECT DATE_FORMAT(DATE,'%Y-%m') AS MONTH,SUM(total_laid_off) AS total_layoffs FROM layoffs_copy2  WHERE DATE IS NOT NULL GROUP BY 1 ORDER BY 1 ASC
-)SELECT MONTH,total_layoffs,SUM(total_layoffs) OVER(ORDER BY MONTH) AS monthly_total_layoffs FROM cumulative_amount ;
+
 -- Which companies had the most layoffs overall (Top 10)?
 WITH cte_col AS  (
 SELECT company,SUM(total_laid_off) AS total_layoffs  FROM layoffs_copy2  GROUP BY 1 ORDER BY 2 DESC LIMIT 10) SELECT company,total_layoffs,DENSE_RANK()
